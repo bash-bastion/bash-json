@@ -1,0 +1,29 @@
+[package]
+lang = 'bash'
+type = 'lib'
+name = 'bash-json'
+slug = 'bash_json'
+version = '0.0.0'
+authors = ['Edwin Kofler <edwin@kofler.dev>']
+description = 'Real JSON parser in Bash'
+
+[run]
+dependencies = [
+	'https://github.com/hyperupcall/bash-core@v0.11.0',
+	'https://github.com/hyperupcall/bash-object@v0.8.0',
+]
+binDirs = []
+sourceDirs = ['pkg/src/public', 'pkg/src/util']
+builtinDirs = []
+completionDirs = []
+manDirs = []
+
+[run.shellEnvironment]
+
+[run.setOptions]
+errexit = 'on'
+pipefail = 'on'
+
+[run.shoptOptions]
+nullglob = 'on'
+shift_verbose = 'on'
