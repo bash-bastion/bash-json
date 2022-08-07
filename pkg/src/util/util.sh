@@ -75,17 +75,14 @@ bash_json.util_parse_array_or_object() {
 	if ((idx > ${#TOKENS[@]} )); then
 		core.print_die "Forgot to close an opening curley brace or bracket"
 	fi
+	# echo zz $idx
 
+	# object
 	if [ "$idx_value" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
-		if ((idx == 0)); then
-			declare -Ag GLOBAL_ROOT=()
-		fi
-
-		local -A temporary_object=()
-
 		idx=$((idx+1))
-		idx_value="${TOKENS[$idx]}"
+		idx_value=${TOKENS[$idx]}
 		bash_json.util_is_within_bounds "$idx" 'Expected closing square curley bracket 1'
+		# echo bbbbb $idx
 
 		until [ "$idx_value" = 'TOKEN_CLOSE_CURLEYBRACE' ]; do
 			idx_value="${TOKENS[$idx]}"
@@ -94,10 +91,8 @@ bash_json.util_parse_array_or_object() {
 			local idx_value_3="${TOKENS[$idx+3]}"
 
 			# 0
-			if bash_json.util_is_primitive "$idx_value"; then # TODO: this does not correctly process numbers (should not be able to pass numbers as a key)
-				temporary_array+=("${idx_value:1}")
-				# bash_json.util_parse_array_or_object "$idx"
-			else
+			# TODO does not correctly proces numbers
+			if ! bash_json.util_is_primitive "$idx_value"; then
 				core.print_die "Expected a literal or object or array (dangling comma?)"
 			fi
 
@@ -107,11 +102,19 @@ bash_json.util_parse_array_or_object() {
 			fi
 
 			# 2
-			if bash_json.util_is_primitive "$idx_value_2"; then # TODO: this does not correctly process numbers (should not be able to pass numbers as a key)
-				temporary_object["$idx_value"]="$idx_value_2"
-				# bash_json.util_parse_array_or_object "$idx"
+			# TODO does not correctly proces numbers
+			if bash_json.util_is_primitive "$idx_value_2"; then
+				bobject set-string --ref 'GLOBAL_ROOT' "$hier.$idx_value" 'idx_value_2'
+			elif [ "$idx_value_2" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
+				# echo descending to "$hier$idx_value" $idx
+				local -A obj=()
+				local str="$hier${idx_value:1}"
+				bobject set-object --ref 'GLOBAL_ROOT' "$str" 'obj'
+				bash_json.util_parse_array_or_object $((idx+2)) "$str"
+				# echo v___ "$REPLY"
+				idx=(REPLY + 4)
+				continue
 			else
-			# TODO ALPHA
 				core.print_die "Expected a literal or object or array (as key of object)"
 			fi
 
@@ -129,13 +132,9 @@ bash_json.util_parse_array_or_object() {
 			bash_json.util_is_within_bounds "$idx" 'Expected closing squigly 2'
 		done
 
-		unset -v REPLY; declare -ga REPLY=()
-		bobject set-object --ref 'GLOBAL_ROOT' "$hier" 'temporary_object'
+		REPLY=$idx
+	# array
 	elif [ "$idx_value" = 'TOKEN_OPEN_SQUAREBRACKET' ]; then
-		if ((idx == 0)); then
-			declare -Ag GLOBAL_ROOT=()
-		fi
-
 		local -a temporary_array=()
 
 		idx=$((idx+1))

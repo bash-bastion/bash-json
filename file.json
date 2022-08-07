@@ -1,3 +1,9 @@
 {
-	"aa": "aaa"
+	"aa": 32,
+	"bb": "three",
+	"apple": {
+		"keeyy": "valuee",
+		"v": "b"
+	},
+	"other": 20
 }

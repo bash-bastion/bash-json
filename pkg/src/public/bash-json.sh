@@ -36,11 +36,12 @@ bash_json.parse() {
 	done; unset -v i
 
 	# Print tokens
-	local token=
+	printf '\n%s\n' "Tokens:"
+	local token= i=0
 	for token in "${TOKENS[@]}"; do
-		printf '%s\n' "token: $token"
+		printf '%s\n' "($i) token: $token"
+		i=$((i+1))
 	done
-
 
 	# Different paths for if token stream starts with object, array, or "singleton"
 	if [ "${TOKENS[0]}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then

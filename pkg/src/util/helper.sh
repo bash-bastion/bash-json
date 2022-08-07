@@ -1,7 +1,13 @@
 # shellcheck shell=bash
 
 bash_json.helper_check_declare_array_or_object() {
-	bash_json.util_parse_array_or_object 0 '.value'
+	if [ "${TOKENS[0]}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
+		declare -Ag GLOBAL_ROOT=()
+	elif [ "${TOKENS[0]}" = 'TOKEN_OPEN_SQUAREBRACKET' ]; then
+		declare -ag GLOBAL_ROOT=()
+	fi
+
+	bash_json.util_parse_array_or_object 0 '.'
 
 	# shellcheck disable=SC2154
 	declare -gn __var="$variable_prefix"
