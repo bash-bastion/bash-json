@@ -21,7 +21,7 @@ bash_json.parse 'root_value' "$c"
 case $root_value_type in
 object)
 	printf '%s\n' "Object found ($root_value_type)"
-	bobject.print 'root_value'
+	bobject.print "$root_value"
 	;;
 array)
 	printf '%s\n' "Array found ($root_value_type)"

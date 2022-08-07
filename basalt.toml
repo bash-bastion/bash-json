@@ -10,7 +10,7 @@ description = 'Real JSON parser in Bash'
 [run]
 dependencies = [
 	'https://github.com/hyperupcall/bash-core@v0.11.0',
-	'https://github.com/hyperupcall/bash-object@v0.8.0',
+	'https://github.com/hyperupcall/bash-object@v0.8.1',
 ]
 binDirs = []
 sourceDirs = ['pkg/src/public', 'pkg/src/util']

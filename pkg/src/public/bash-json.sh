@@ -35,6 +35,13 @@ bash_json.parse() {
 		esac
 	done; unset -v i
 
+	# Print tokens
+	local token=
+	for token in "${TOKENS[@]}"; do
+		printf '%s\n' "token: $token"
+	done
+
+
 	# Different paths for if token stream starts with object, array, or "singleton"
 	if [ "${TOKENS[0]}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
 		bash_json.helper_check_declare_array_or_object
