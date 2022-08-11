@@ -45,22 +45,22 @@ bash_json.parse() {
 
 	# Construct object using token sequence
 	if [ "${TOKENS[0]}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
-		bash_json.util_parse_array_or_object "$variable_prefix" 0 '.'
+		bash_json.parse_array_or_object "$variable_prefix" 0 '.'
 
 		REPLY1=$variable_prefix
 		REPLY2='object'
 	elif [ "${TOKENS[0]}" = 'TOKEN_OPEN_SQUAREBRACKET' ]; then
-		bash_json.util_parse_array_or_object "$variable_prefix" 0 '.'
+		bash_json.parse_array_or_object "$variable_prefix" 0 '.'
 
 		REPLY1=$variable_prefix
 		REPLY2='array'
 	elif [ "${TOKENS[0]::1}" = $'\x01' ]; then
-		bash_json.util.parse_primitive
+		bash_json.parse_primitive
 
 		REPLY1=$REPLY
 		REPLY2='string'
 	elif [ "${TOKENS[0]::1}" = $'\x02' ]; then
-		bash_json.util.parse_primitive
+		bash_json.parse_primitive
 
 		REPLY1=$REPLY
 		REPLY2='number'
