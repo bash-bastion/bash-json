@@ -67,15 +67,15 @@ bash_json.util_is_within_bounds() {
 }
 
 bash_json.util_parse_array_or_object() {
-	local idx="$1"
-	local hier="$2"
+	local variable_prefix="$1"
+	local idx="$2"
+	local hier="$3"
 
 	local idx_value="${TOKENS[$idx]}"
 
 	if ((idx > ${#TOKENS[@]} )); then
 		core.print_die "Forgot to close an opening curley brace or bracket"
 	fi
-	# echo zz $idx
 
 	# object
 	if [ "$idx_value" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
@@ -104,13 +104,13 @@ bash_json.util_parse_array_or_object() {
 			# 2
 			# TODO does not correctly proces numbers
 			if bash_json.util_is_primitive "$idx_value_2"; then
-				bobject set-string --ref 'GLOBAL_ROOT' "$hier.$idx_value" 'idx_value_2'
+				bobject set-string --ref "$variable_prefix" "$hier.$idx_value" 'idx_value_2'
 			elif [ "$idx_value_2" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
 				# echo descending to "$hier$idx_value" $idx
 				local -A obj=()
 				local str="$hier${idx_value:1}"
-				bobject set-object --ref 'GLOBAL_ROOT' "$str" 'obj'
-				bash_json.util_parse_array_or_object $((idx+2)) "$str"
+				bobject set-object --ref "$variable_prefix" "$str" 'obj'
+				bash_json.util_parse_array_or_object "$variable_prefix" $((idx+2)) "$str"
 				# echo v___ "$REPLY"
 				idx=(REPLY + 4)
 				continue
@@ -169,6 +169,16 @@ bash_json.util_parse_array_or_object() {
 		done
 
 		unset -v REPLY; declare -ga REPLY=()
-		bobject set-array --ref 'GLOBAL_ROOT' "$hier" 'temporary_array'
+		bobject set-array --ref "$variable_prefix" "$hier" 'temporary_array'
 	fi
+}
+
+bash_json.util.parse_primitive() {
+	unset -v REPLY; REPLY=
+
+	if ((${#TOKENS[@]} > 1)); then
+		core.print_die "If parsing a string or number, there can be only one"
+	fi
+
+	REPLY="${TOKENS[0]}"
 }

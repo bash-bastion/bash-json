@@ -1,8 +1,8 @@
 # shellcheck shell=bash
 
 bash_json.parse() {
-	unset -v REPLY; REPLY=
-
+	# shellcheck disable=SC1007
+	unset -v REPLY{1,2}; REPLY1= REPLY2=
 	local variable_prefix="$1"
 	local content="$2"
 
@@ -35,30 +35,36 @@ bash_json.parse() {
 		esac
 	done; unset -v i
 
-	# Print tokens
+	# Print token sequence
 	printf '\n%s\n' "Tokens:"
-	local token= i=0
+	local i=0 token=
 	for token in "${TOKENS[@]}"; do
 		printf '%s\n' "($i) token: $token"
 		i=$((i+1))
 	done
 
-	# Different paths for if token stream starts with object, array, or "singleton"
+	# Construct object using token sequence
 	if [ "${TOKENS[0]}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
-		bash_json.helper_check_declare_array_or_object
+		bash_json.util_parse_array_or_object "$variable_prefix" 0 '.'
 
-		__var_type='object'
+		REPLY1=$variable_prefix
+		REPLY2='object'
 	elif [ "${TOKENS[0]}" = 'TOKEN_OPEN_SQUAREBRACKET' ]; then
-		bash_json.helper_check_declare_array_or_object
+		bash_json.util_parse_array_or_object "$variable_prefix" 0 '.'
 
-		__var_type='array'
+		REPLY1=$variable_prefix
+		REPLY2='array'
 	elif [ "${TOKENS[0]::1}" = $'\x01' ]; then
-		bash_json.helper_check_declare_primitive
+		bash_json.util.parse_primitive
 
-		__var_type='string'
+		REPLY1=$REPLY
+		REPLY2='string'
 	elif [ "${TOKENS[0]::1}" = $'\x02' ]; then
-		bash_json.helper_check_declare_primitive
+		bash_json.util.parse_primitive
 
-		__var_type='number'
+		REPLY1=$REPLY
+		REPLY2='number'
+	else
+		core.panic 'Unexpected token'
 	fi
 }
