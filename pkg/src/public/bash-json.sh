@@ -9,30 +9,40 @@ bash_json.parse() {
 	local -a TOKENS=()
 
 	# Construct token sequence
-	local i=
+	local -i col=1 row=1 i=
 	for ((i=0; i<${#content}; ++i)); do
 		local char="${content:$i:1}"
 
+		local prefix="$col:$row:"
 		case $char in
-			'{') TOKENS+=('TOKEN_OPEN_CURLEYBRACE') ;;
-			'}') TOKENS+=('TOKEN_CLOSE_CURLEYBRACE') ;;
-			'[') TOKENS+=('TOKEN_OPEN_SQUAREBRACKET') ;;
-			']') TOKENS+=('TOKEN_CLOSE_SQUAREBRACKET') ;;
-			':') TOKENS+=('TOKEN_COLON') ;;
-			',') TOKENS+=('TOKEN_COMMA') ;;
+			'{') TOKENS+=("$prefix"'TOKEN_OPEN_CURLEYBRACE') ;;
+			'}') TOKENS+=("$prefix"'TOKEN_CLOSE_CURLEYBRACE') ;;
+			'[') TOKENS+=("$prefix"'TOKEN_OPEN_SQUAREBRACKET') ;;
+			']') TOKENS+=("$prefix"'TOKEN_CLOSE_SQUAREBRACKET') ;;
+			':') TOKENS+=("$prefix"'TOKEN_COLON') ;;
+			',') TOKENS+=("$prefix"'TOKEN_COMMA') ;;
 			'"')
 				local str=
-				bash_json.util_tokenize_string || true
-				TOKENS+=($'\x01'"$str")
+				bash_json.tokenize_string || true
+				TOKENS+=($'\x01'"${prefix}${str}")
+				col+=$((${#str}+1))
 				;;
 			[[:digit:]])
 				local str=
-				bash_json.util_tokenize_number || true
-				TOKENS+=($'\x02'"$str")
+				bash_json.tokenize_number || true
+				TOKENS+=($'\x02'"${prefix}${str}")
+				col+=$((${#str}-1))
 				;;
-			' '|$'\t'|$'\n'|$'\r') ;;
-			*) core.print_die "Failed: $char" ;;
+			$'\n')
+				row+=1
+				col=0
+				;;
+			' '|$'\t'|$'\r')
+				;;
+			*) core.print_die "Failed: $char"
+				;;
 		esac
+		col+=1
 	done; unset -v i
 
 	# Print token sequence
@@ -44,12 +54,12 @@ bash_json.parse() {
 	done
 
 	# Construct object using token sequence
-	if [ "${TOKENS[0]}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
+	if [ "${TOKENS[0]##*:}" = 'TOKEN_OPEN_CURLEYBRACE' ]; then
 		bash_json.parse_array_or_object "$variable_prefix" 0 '.'
 
 		REPLY1=$variable_prefix
 		REPLY2='object'
-	elif [ "${TOKENS[0]}" = 'TOKEN_OPEN_SQUAREBRACKET' ]; then
+	elif [ "${TOKENS[0]##*:}" = 'TOKEN_OPEN_SQUAREBRACKET' ]; then
 		bash_json.parse_array_or_object "$variable_prefix" 0 '.'
 
 		REPLY1=$variable_prefix

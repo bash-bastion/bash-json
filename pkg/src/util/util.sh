@@ -1,52 +1,5 @@
 # shellcheck shell=bash
 
-bash_json.util_tokenize_string() {
-	i=$((i+1))
-
-	local char="${content:$i:1}"
-
-	case $char in
-	$'\x10'|$'\x11'|$'\x12'|$'\x13'|$'\x14')
-		core.print_die "Unexpected whitespace in string"
-		;;
-	'"'|'')
-		return 1
-		;;
-	*)
-		str+="$char"
-		;;
-	esac
-
-	until bash_json.util_tokenize_string; do
-		return 1
-	done
-}
-
-bash_json.util_tokenize_number() {
-	case $char in
-	$'\x09'|$'\x0B'|$'\x0C')
-		core.print_die "Unexpected whitespace in number"
-		;;
-	','|']')
-		i=$((i-1))
-		return 1
-		;;
-	$'\x0A'|'')
-		return 1
-		;;
-	*)
-		str+="$char"
-		;;
-	esac
-
-	i=$((i+1))
-	local char="${content:$i:1}"
-
-	until bash_json.util_tokenize_number; do
-		return 1
-	done
-}
-
 bash_json.util_is_primitive() {
 	local value="$1"
 
@@ -64,4 +17,19 @@ bash_json.util_is_within_bounds() {
 	if ((idx >= ${#TOKENS[@]} )); then
 		core.print_die "$message"
 	fi
+}
+
+bash_json_get_idx_values() {
+	unset -v REPLY{1,2,3}; REPLY1= REPLY2= REPLY3=
+	local i="$1"
+
+	REPLY1=${TOKENS[$i]##*:}
+	REPLY2=${TOKENS[$i]%%:*}
+	REPLY3=${TOKENS[$i]#*:}; REPLY3=${REPLY3%%:*}
+}
+
+bash_json.util_die() {
+	local msg="$1"
+
+	core.print_die "$msg (row $idx_row, column: $idx_col)"
 }

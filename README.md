@@ -1,8 +1,11 @@
 # bash-json
 
-The _first_ Bash library for parsing JSON in pure Bash (no subshells, no exec, only builtins, etc.)
+The _first_ Bash library parsing JSON in Bash
 
-Made possible with [bash-object](https://github.com/hyperupcall/bash-object)
+## Summary
+
+- Uses only builtins and no subshells
+- Leverages [bash-object](https://github.com/hyperupcall/bash-object)
 
 ## Installation
 
