@@ -2,6 +2,8 @@
 
 The _first_ Bash library parsing JSON in Bash
 
+Status: IN DEVELOPMENT
+
 ## Summary
 
 - Uses only builtins and no subshells
@@ -9,7 +11,7 @@ The _first_ Bash library parsing JSON in Bash
 
 ## Installation
 
-Use Basalt, a Bash package manager, to add this project as a dependency
+Use [Basalt](https://github.com/hyperupcall/basalt), a Bash package manager, to add this project as a dependency
 
 ```sh
 basalt add hyperupcall/bash-json
